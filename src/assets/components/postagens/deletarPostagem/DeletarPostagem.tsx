@@ -5,17 +5,32 @@ import './DeletarPostagem.css';
 import Postagem from '../../../../models/Postagem';
 import { buscaId, deleteId } from '../../../../services/Service';
 import {useNavigate, useParams } from 'react-router-dom'
-import useLocalStorage from 'react-use-localstorage';
+import { toast } from 'react-toastify';
+import { TokenState } from '../../../../store/tokens/tokensReducer';
+import { useSelector } from 'react-redux';
 
 function DeletarPostagem() {
-  let navigate = useNavigate();
-  const { id } = useParams<{id: string}>();
-  const [token, setToken] = useLocalStorage('token');
-  const [post, setPosts] = useState<Postagem>()
+  const navigate = useNavigate();
+  const { id } = useParams<{ id: string }>();
+
+  const token = useSelector<TokenState, TokenState["tokens"]>(
+      (state) => state.tokens
+  );
+
+  const [postagem, setPost] = useState<Postagem>()
 
   useEffect(() => {
       if (token == "") {
-          alert("Você precisa estar logado")
+        toast.error('Voce precisa estar logado', {
+          position: "top-right",
+          autoClose: 2000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: false,
+          draggable: false,
+          theme: "colored",
+          progress: undefined,
+      });
           navigate("/login")
   
       }
@@ -28,7 +43,7 @@ function DeletarPostagem() {
   }, [id])
 
   async function findById(id: string) {
-      buscaId(`/postagens/${id}`, setPosts, {
+      buscaId(`/postagens/${id}`, setPost, {
           headers: {
             'Authorization': token
           }
@@ -42,7 +57,16 @@ function DeletarPostagem() {
               'Authorization': token
             }
           });
-          alert('Postagem deletada com sucesso');
+          toast.success('Postagem deletada com sucesso', {
+            position: "top-right",
+            autoClose: 2000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: false,
+            draggable: false,
+            theme: "colored",
+            progress: undefined,
+        });
         }
       
         function nao() {
@@ -58,7 +82,7 @@ return (
               Deseja deletar a Postagem:
             </Typography>
             <Typography color="textSecondary" >
-            {post?.titulo}
+            {postagem?.titulo}
             </Typography>
           </Box>
 
